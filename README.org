@@ -1,0 +1,9 @@
+#+title: GNUPLOT-command-strings package
+
+This package offers utilities to build up strings that will be sent to
+a gnuplot process
+
+It is intended to be a utility package for higher level systems for
+generating plots via gnuplot.
+
+It does not launch gnuplot, or produce plots.  It opens no streams.
