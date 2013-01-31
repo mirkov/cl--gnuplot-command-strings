@@ -1,6 +1,6 @@
 ;;;; gnuplot-command-strings.lisp
 
-(in-package #:gnuplot-command-strings)
+(in-package :gnuplot-command-strings)
 
 (export '(insert-column-index print-inline-data))
 
@@ -78,44 +78,6 @@ e
 (export '(print-inline-data))
 
 (let ((lf (string #\linefeed)))
-  (defgeneric print-inline-data (stream data)
-    (:documentation
-"Print data in format for inline inclusion to the plot statement to
-stream.
-
-Data can be of type list, vector or matrix (2-d array)
-
-The symbol `lf' is available to print the \#linefeed character(s)")
-    (:method (stream (data list))
-      (dolist (value data)
-	(princ value stream)
-	(princ lf stream))
-      #+skip(princ lf stream)
-      (princ "e" stream)
-      (princ lf stream))
-    (:method (stream (data vector))
-      (dotimes (i (length data))
-	(princ (elt data i) stream)
-	(princ lf stream))
-      #+skip(princ lf stream)
-      (princ "e" stream)
-      (princ lf stream))
-    (:method (stream (data array))
-      (let ((dims (array-dimensions data)))
-	(assert (= 2 (length dims))
-		()
-		"The data argument must be a matrix.  Instead it's dimensions is ~a"
-		dims)
-	(dotimes (i (first dims))
-	  (dotimes (j (second dims))
-	    (princ (aref data i j) stream)
-	    (princ " " stream))
-	  (princ lf stream))
-	#+skip(princ lf stream)
-	(princ "e" stream)
-	(princ lf stream)))))
-
-(let ((lf (string #\linefeed)))
   (defgeneric print-inline-data (stream data &rest more-data)
     (:documentation
 "Print data in format for inline inclusion to the plot statement to
@@ -133,33 +95,33 @@ The symbol `lf' is available to print the \#linefeed character(s)")
 	    (do ()
 		((null (aref all-lists 0)))
 	      (dotimes (i list-count)
-		(princ (car (aref all-lists i)))
-		(princ " ")
+		(princ (car (aref all-lists i)) stream)
+		(princ " " stream)
 		(setf (aref all-lists i) (cdr (aref all-lists i))))
 	      (princ lf stream)))
 	  (dolist (value data)
 	    (princ value stream)
 	    (princ lf stream)))
-      (princ "e" stream)
+      (princ #\e stream)
       (princ lf stream))
     (:method (stream (vector vector) &rest more-vectors)
       (if more-vectors
 	  (let* ((vector-count (1+ (length more-vectors)))
 		 (vector-length (length vector))
 		 (all-vectors (make-array vector-count
-					:initial-contents
-					(cons vector more-vectors))))
+					  :initial-contents
+					  (cons vector more-vectors))))
 	    (do ((i 0 (+ 1 i)))
 		((= i vector-length))
 	      (dotimes (j vector-count)
-		(princ (aref (aref all-vectors j) i))
-		(princ " "))
+		(princ (aref (aref all-vectors j) i) stream)
+		(princ " " stream))
 	      (princ lf stream)))
-      (dotimes (i (length vector))
-	(princ (elt vector i) stream)
-	(princ lf stream)))
+	  (dotimes (i (length vector))
+	    (princ (elt vector i) stream)
+	    (princ lf stream)))
       #+skip(princ lf stream)
-      (princ "e" stream)
+      (princ #\e stream)
       (princ lf stream))
     (:method (stream (data array) &rest ignorable)
       (if ignorable
@@ -175,5 +137,5 @@ The symbol `lf' is available to print the \#linefeed character(s)")
 	    (princ " " stream))
 	  (princ lf stream))
 	#+skip(princ lf stream)
-	(princ "e" stream)
+	(princ #\e stream)
 	(princ lf stream)))))

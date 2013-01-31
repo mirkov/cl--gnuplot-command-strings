@@ -5,6 +5,6 @@
   :components ((:file "package")
                (:file "gnuplot-command-strings"))
   :depends-on (:lisp-unit
-		:anaphora
-:my-utils))
+	       :anaphora
+	       :my-utils))
 
